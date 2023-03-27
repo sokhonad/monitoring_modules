@@ -1,0 +1,94 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block body %}
+    <script>
+        var data=[];
+        var dataLabels=[];
+    </script>
+    <h1>Modules</h1>
+    <div class="w-60   justify-content: center">
+        <table class="table ">
+            <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Last Mesured Value</th>
+                <th>Number Data Sent</th>
+                <th>actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for module in modules %}
+                <script>
+                    data.push({{ module.lastMesuredValue }} )
+                    dataLabels.push("Module ".concat({{ module.id }}))
+                </script>
+                <tr>
+                    <td>{{ module.id }}</td>
+                    <td>{{ module.name }}</td>
+                    <td>{{ module.type }}</td>
+                    <td>{{ module.status }}</td>
+                    <td>{{ module.lastMesuredValue }}</td>
+                    <td>{{ module.NumberDataSent }}</td>
+                    {% if module.status == 'panne' %}
+                        <div class="alert alert-danger" role="alert">
+                            Le module {{ module.name }} est actuellement en panne.
+                        </div>
+                    {% endif %}
+                    <td>
+                        <a href="{{ path('app_module_show', {'id': module.id}) }}">show</a>
+                        <a href="{{ path('app_module_edit', {'id': module.id}) }}">edit</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7">no records found</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <a href="{{ path('app_module_new') }}">Create new</a>
+
+    </div>
+
+    <!-- Inclure la bibliothèque Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Créer un élément canvas pour le graphique -->
+    <canvas id="temperature-chart"></canvas>
+
+    <!-- Inclure un script qui récupère les données de la base de données et les transforme en un format compatible avec Chart.js -->
+    <script>
+        // Récupérer les données de la base de données (par exemple avec une requête AJAX)
+        // var data = [20, 22, 21, 23, 24, 22, 25];
+        // Créer un objet Chart avec les données et les options de configuration du graphique
+        var ctx = document.getElementById('temperature-chart').getContext('2d');
+        var chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: dataLabels,
+                datasets: [{
+                    label: 'Température ou Vitesse',
+                    data: data,
+                    borderColor: 'rgb(255, 99, 132)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                    tension: 0.2
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+    </script>
+{% endblock %}
